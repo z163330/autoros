@@ -1,0 +1,34 @@
+# .github/workflows/rosabc-login.yaml
+name: ROSABC Auto Login
+
+on:
+  schedule:
+    - cron: '0 8 * * *'  # 每天北京时间8点自动登录保活
+  workflow_dispatch:  # 支持手动触发
+
+jobs:
+  login:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: 安装依赖
+      run: pip install requests beautifulsoup4
+    
+    - name: 执行登录
+      env:
+        USERNAME: ${{ secrets.ROSABC_USER }}
+        PASSWORD: ${{ secrets.ROSABC_PASS }}
+      run: python login.py
+    
+    - name: 上传Cookie快照（调试用，可选）
+      uses: actions/upload-artifact@v4
+      with:
+        name: cookies
+        path: cookies.json
+        retention-days: 7
